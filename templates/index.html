@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Akinator Clone</title>
+    <style>body { font-family: sans-serif; text-align: center; padding-top: 50px; }</style>
+</head>
+<body>
+    <h1>Omniscient Thing</h1>
+    <p>{{ message }}</p>
+
+    {% if start %}
+        <form action="/ask" method="post">
+            <button type="submit">Start Game</button>
+        </form>
+    {% elif question %}
+        <h2>{{ text }}</h2>
+        <form action="/ask" method="post">
+            <button name="answer" value="yes">Yes</button>
+            <button name="answer" value="no">No</button>
+        </form>
+    {% elif guess %}
+        <h2>Is it a {{ text }}?</h2>
+        <form action="/" method="get">
+            <button type="submit">Yes (I win!)</button>
+        </form>
+        <form action="/ask" method="post">
+            <input type="hidden" name="answer" value="no">
+            <button type="submit">No (Teach me)</button>
+        </form>
+    {% elif learn %}
+        <form action="/learn" method="post">
+            <input type="text" name="obj_name" placeholder="What was it?" required><br><br>
+            <input type="text" name="new_question" placeholder="A question to tell them apart..." required><br><br>
+            <label>Is the answer for your object 'Yes'?</label>
+            <select name="is_yes">
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+            </select><br><br>
+            <button type="submit">Teach Me</button>
+        </form>
+    {% endif %}
+</body>
+</html>
