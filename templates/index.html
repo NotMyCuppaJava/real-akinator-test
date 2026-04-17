@@ -1,43 +1,67 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Akinator Clone</title>
-    <style>body { font-family: sans-serif; text-align: center; padding-top: 50px; }</style>
+    <title>The Omniscient Thing</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 50px; background-color: #f0f2f5; }
+        .card { background: white; padding: 40px; border-radius: 15px; display: inline-block; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 400px; }
+        button { padding: 12px 25px; margin: 10px; cursor: pointer; border-radius: 8px; border: none; background: #007bff; color: white; font-weight: bold; }
+        button.no { background: #6c757d; }
+        input, select { padding: 10px; margin: 10px 0; width: 90%; border: 1px solid #ddd; border-radius: 5px; }
+        .restart { display: block; margin-top: 30px; color: #dc3545; text-decoration: none; font-size: 13px; }
+    </style>
 </head>
 <body>
-    <h1>Omniscient Thing</h1>
-    <p>{{ message }}</p>
+    <div class="card">
+        <img src="{{ url_for('static', filename='botimage.jpg') }}" alt="Akinator Bot" style="max-width: 200px; margin-bottom: 20px;">
+        
+        <h1>The Omniscient Thing</h1>
+        <p><strong>{{ message }}</strong></p>
 
-    {% if start %}
-        <form action="/ask" method="post">
-            <button type="submit">Start Game</button>
-        </form>
-    {% elif question %}
-        <h2>{{ text }}</h2>
-        <form action="/ask" method="post">
-            <button name="answer" value="yes">Yes</button>
-            <button name="answer" value="no">No</button>
-        </form>
-    {% elif guess %}
-        <h2>Is it a {{ text }}?</h2>
-        <form action="/" method="get">
-            <button type="submit">Yes (I win!)</button>
-        </form>
-        <form action="/ask" method="post">
-            <input type="hidden" name="answer" value="no">
-            <button type="submit">No (Teach me)</button>
-        </form>
-    {% elif learn %}
-        <form action="/learn" method="post">
-            <input type="text" name="obj_name" placeholder="What was it?" required><br><br>
-            <input type="text" name="new_question" placeholder="A question to tell them apart..." required><br><br>
-            <label>Is the answer for your object 'Yes'?</label>
-            <select name="is_yes">
-                <option value="yes">Yes</option>
-                <option value="no">No</option>
-            </select><br><br>
-            <button type="submit">Teach Me</button>
-        </form>
-    {% endif %}
+        {# --- START --- #}
+        {% if mode == 'start' or not mode %}
+            <form action="/ask" method="post">
+                <button type="submit">Begin</button>
+            </form>
+
+        {# --- PLAYING (Question or Guess) --- #}
+        {% elif mode == 'play' %}
+            {% if is_question %}
+                <h2>{{ text }}</h2>
+            {% else %}
+                <h2>Is it a {{ text }}?</h2>
+            {% endif %}
+            <form action="/ask" method="post">
+                <button name="answer" value="yes">Yes</button>
+                <button name="answer" value="no" class="no">No</button>
+            </form>
+
+        {# --- LEARNING: FILL IN BLANK --- #}
+        {% elif mode == 'simple' %}
+            <p>You said <strong>{{ choice }}</strong> to "{{ prev_text }}".</p>
+            <form action="/learn" method="POST">
+                <input type="hidden" name="mode" value="simple">
+                <input type="text" name="obj_name" placeholder="What was the object?" required><br>
+                <button type="submit">Save to Database</button>
+            </form>
+
+        {# --- LEARNING: WRONG GUESS --- #}
+        {% elif mode == 'complex' %}
+            <p>I guessed <strong>{{ bot_guess }}</strong>, but I was wrong!</p>
+            <form action="/learn" method="POST">
+                <input type="hidden" name="mode" value="complex">
+                <input type="text" name="obj_name" placeholder="What was your object?" required><br>
+                <input type="text" name="new_question" placeholder="Question to distinguish from {{ bot_guess }}?" required><br>
+                <label>Is the answer "Yes" for your object?</label><br>
+                <select name="is_yes">
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                </select><br>
+                <button type="submit">Teach Me</button>
+            </form>
+        {% endif %}
+
+        <a href="/" class="restart">Restart Game / Clear Errors</a>
+    </div>
 </body>
 </html>
