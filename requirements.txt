@@ -3,4 +3,3 @@ pymongo
 dnspython
 certifi
 gunicorn
-os
